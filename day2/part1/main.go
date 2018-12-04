@@ -1,5 +1,12 @@
 package main
 
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
+
 /*
 --- Day 2: Inventory Management System ---
 You stop falling through time, catch your breath, and check the screen on the device.
@@ -42,5 +49,49 @@ What is the checksum for your list of box IDs?
 */
 
 func main() {
+	f, err := os.Open("./input.txt")
+	if err != nil {
+		fmt.Printf("unable to open frequency file! reason: %v\n", err)
+		os.Exit(1)
+	}
 
+	r := bufio.NewReader(f)
+
+	hasTwo := 0
+	hasThree := 0
+
+	line, _, err := r.ReadLine()
+	for ; err == nil; line, _, err = r.ReadLine() {
+		a, b := countr(string(line))
+		hasTwo += a
+		hasThree += b
+
+		fmt.Printf("line: %v\ta: %v\tb: %v\n", string(line), a, b)
+	}
+
+	fmt.Printf("checksum: %v\n", hasTwo*hasThree)
+}
+
+func countr(in string) (int, int) {
+	out := strings.Split(in, "")
+
+	a := 0
+	b := 0
+
+	cnt := map[string]int{}
+
+	for _, x := range out {
+		cnt[x] += 1
+	}
+
+	for _, c := range cnt {
+		if c == 2 {
+			a = 1
+		}
+		if c == 3 {
+			b = 1
+		}
+	}
+
+	return a, b
 }
