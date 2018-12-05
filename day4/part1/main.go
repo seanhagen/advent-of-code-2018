@@ -102,6 +102,9 @@ func main() {
 
 	found := map[time.Time][]string{}
 
+	var begin, end time.Time
+
+
 	r := bufio.NewReader(f)
 	line, _, err := r.ReadLine()
 	for ; err == nil; line, _, err = r.ReadLine() {
@@ -119,8 +122,18 @@ func main() {
 			os.Exit(1)
 		}
 
+		if begin == time.Time{} {
+			begin = t
+		} else {
+			if t < begin {
+				begin = t
+			}
+		}
+
+
+
+
 		found[t] = bits[2:]
 	}
-
 	spew.Dump(found)
 }
