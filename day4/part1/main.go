@@ -1,6 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+	"time"
+
+	"github.com/davecgh/go-spew/spew"
+)
 
 /*
 --- Day 4: Repose Record ---
@@ -83,6 +91,36 @@ What is the ID of the guard you chose multiplied by the minute you chose? (In th
 above example, the answer would be 10 * 24 = 240.)
 */
 
+const dateFmtStr = "2006-01-02 15:04"
+
 func main() {
-	fmt.Printf("not done yet!\n")
+	f, err := os.Open("../input.txt")
+	if err != nil {
+		fmt.Printf("unable to open frequency file! reason: %v\n", err)
+		os.Exit(1)
+	}
+
+	found := map[time.Time][]string{}
+
+	r := bufio.NewReader(f)
+	line, _, err := r.ReadLine()
+	for ; err == nil; line, _, err = r.ReadLine() {
+		bits := strings.Fields(string(line))
+
+		datestr := fmt.Sprintf(
+			"%v %v",
+			strings.Replace(bits[0], "[", "", -1),
+			strings.Replace(bits[1], "]", "", -1),
+		)
+
+		t, err := time.Parse(dateFmtStr, datestr)
+		if err != nil {
+			fmt.Printf("unable to parse date string: %v\n", err)
+			os.Exit(1)
+		}
+
+		found[t] = bits[2:]
+	}
+
+	spew.Dump(found)
 }
