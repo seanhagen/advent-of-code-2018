@@ -100,10 +100,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	found := map[time.Time][]string{}
+	found := map[int64][]string{}
 
-	var begin, end time.Time
-
+	begin := time.Date(3000, 1, 1, 0, 0, 0, 0, time.Local)
+	end := time.Date(1, 1, 1, 0, 0, 0, 0, time.Local)
 
 	r := bufio.NewReader(f)
 	line, _, err := r.ReadLine()
@@ -122,18 +122,22 @@ func main() {
 			os.Exit(1)
 		}
 
-		if begin == time.Time{} {
+		if t.Before(begin) {
 			begin = t
-		} else {
-			if t < begin {
-				begin = t
-			}
 		}
 
-
-
-
-		found[t] = bits[2:]
+		if t.After(end) {
+			end = t
+		}
+		found[t.Unix()] = bits[2:]
 	}
-	spew.Dump(found)
+
+	for x := begin; x.Unix() <= end.Unix(); x = x.Add(time.Minute) {
+		t, ok := found[x.Unix()]
+		if ok {
+			fmt.Printf("log at %v: %v\n", x, strings.Join(t, " "))
+		}
+	}
+
+	spew.Dump(begin, end)
 }
