@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"io/ioutil"
+	"os"
+)
 
 /*
 --- Day 5: Alchemical Reduction ---
@@ -37,9 +41,53 @@ How many units remain after fully reacting the polymer you scanned?
 */
 
 func main() {
-	fmt.Printf("not complete\n\n")
+	f, err := os.Open("../input.txt")
+	if err != nil {
+		fmt.Printf("unable to open polymer file! reason: %v\n", err)
+		os.Exit(1)
+	}
+
+	input, err := ioutil.ReadAll(f)
+	if err != nil {
+		fmt.Printf("unable to read from input file: %v\n", err)
+		os.Exit(1)
+	}
+
+	out := processChain(string(input))
+
+	fmt.Printf("units left after processing: %v\n", len(out)-1)
+	// the '-1' is for the '\n' character
 }
 
 func processChain(in string) string {
+begin:
+	start := len(in)
+	out := pass(in)
+
+	if len(out) == 0 {
+		return out
+	}
+
+	if len(out) == start {
+		return out
+	}
+
+	in = out
+	goto begin
+}
+
+func pass(in string) string {
+	for i := range in {
+		if i == 0 {
+			continue
+		}
+		if i >= len(in) {
+			break
+		}
+		if in[i]^in[i-1] == 32 {
+			in = in[:i-1] + in[i+1:]
+			i = -1
+		}
+	}
 	return in
 }
