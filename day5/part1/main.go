@@ -39,3 +39,7 @@ How many units remain after fully reacting the polymer you scanned?
 func main() {
 	fmt.Printf("not complete\n\n")
 }
+
+func processChain(in string) string {
+	return in
+}
