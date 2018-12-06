@@ -97,6 +97,12 @@ const dateFmtStr = "2006-01-02 15:04"
 const awake = -1
 const asleep = 1
 
+type pickedGuard struct {
+	id     string
+	count  int
+	minute int
+}
+
 func main() {
 	f, err := os.Open("../input.txt")
 	if err != nil {
@@ -136,7 +142,7 @@ func main() {
 		found[t.Unix()] = bits[2:]
 	}
 
-	test := map[string]map[string][]int{}
+	test := map[string]bool{}
 	asleepCount := map[string][]int{}
 
 	var guardID string
@@ -144,14 +150,11 @@ func main() {
 	for x := begin; x.Unix() <= end.Unix(); x = x.Add(time.Minute) {
 		t, ok := found[x.Unix()]
 		if ok {
-			// fmt.Printf("[%v]: %v\n", x.Format(dateFmtStr), strings.Join(t, " "))
 			date := x
 			if date.Hour() != 0 {
 				diff, _ := time.ParseDuration(fmt.Sprintf("%vm", 60-date.Minute()))
 				date = date.Add(diff)
 			}
-
-			a := date.Format("2006-01-02")
 
 			switch t[0] {
 			case "Guard":
@@ -159,10 +162,8 @@ func main() {
 
 				y, ok := test[guardID]
 				if !ok {
-					y = map[string][]int{}
+					y = true
 				}
-				y[a] = genShift()
-				// fmt.Printf("created guard shift for guard %v on %v\n", guardID, date.Format("2006-01-02"))
 				test[guardID] = y
 
 				z, ok := asleepCount[guardID]
@@ -172,71 +173,40 @@ func main() {
 				}
 
 			case "wakes":
-				// fmt.Printf("on %v guard %v wakes up! (min: %v)\n", date.Format("2006-01-02"), guardID, date.Minute())
-				y, ok := test[guardID]
-				if !ok {
-					panic(fmt.Errorf("this shouldn't happen"))
-				}
-				z, ok := y[a]
-				if !ok {
-					panic(fmt.Errorf("this should also not happen"))
-				}
-				z = fill(z, date.Minute(), awake)
-				test[guardID][a] = z
-
 				a := asleepCount[guardID]
 				asleepCount[guardID] = add(a, date.Minute(), -1)
 			case "falls":
-				// fmt.Printf("on %v guard %v falls asleep! (min: %v)\n", date.Format("2006-01-02"), guardID, date.Minute())
-				y, ok := test[guardID]
-				if !ok {
-					panic(fmt.Errorf("this shouldn't happen"))
-				}
-				z, ok := y[a]
-				if !ok {
-					panic(fmt.Errorf("this should also not happen"))
-				}
-				z = fill(z, date.Minute(), asleep)
-				test[guardID][a] = z
-
 				a := asleepCount[guardID]
 				asleepCount[guardID] = add(a, date.Minute(), +1)
 			}
 		}
 	}
 
-	highest := struct {
-		id     string
-		count  int
-		minute int
-	}{"", 0, 0}
+	highest := pickedGuard{"", 0, 0}
+
+	mostAsleep := 0
 
 	for gid := range test {
-		fmt.Printf("guard id: %v - ", gid)
-		// for d, shift := range shifts {
-		// 	fmt.Printf("%v  => ", d)
-		// 	for _, v := range shift {
-		// 		switch v {
-		// 		case awake:
-		// 			fmt.Printf(".")
-		// 		case asleep:
-		// 			fmt.Printf("#")
-		// 		}
-		// 	}
-		// 	fmt.Printf("\n")
-		// }
-
 		count := asleepCount[gid]
 
-		for i, x := range count {
-			if x > highest.count {
-				highest.minute = i
-				highest.count = x
-				highest.id = gid
-			}
+		total := 0
+		for _, x := range count {
+			total += x
 		}
 
-		fmt.Printf("%v\n", strings.Join(mapIntToString(count), ","))
+		if total > mostAsleep {
+			mostAsleep = total
+
+			highest = pickedGuard{gid, 0, 0}
+
+			for i, x := range count {
+				if x > highest.count {
+					highest.minute = i
+					highest.count = x
+					highest.id = gid
+				}
+			}
+		}
 	}
 	spew.Dump(highest)
 }
