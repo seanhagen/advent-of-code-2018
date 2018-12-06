@@ -135,7 +135,7 @@ func main() {
 	for x := begin; x.Unix() <= end.Unix(); x = x.Add(time.Minute) {
 		t, ok := found[x.Unix()]
 		if ok {
-			fmt.Printf("log at %v: %v\n", x, strings.Join(t, " "))
+			fmt.Printf("[%v]: %v\n", x.Format(dateFmtStr), strings.Join(t, " "))
 		}
 	}
 
