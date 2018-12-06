@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -93,6 +94,9 @@ above example, the answer would be 10 * 24 = 240.)
 
 const dateFmtStr = "2006-01-02 15:04"
 
+const awake = -1
+const asleep = 1
+
 func main() {
 	f, err := os.Open("../input.txt")
 	if err != nil {
@@ -132,12 +136,139 @@ func main() {
 		found[t.Unix()] = bits[2:]
 	}
 
+	test := map[string]map[string][]int{}
+	asleepCount := map[string][]int{}
+
+	var guardID string
+
 	for x := begin; x.Unix() <= end.Unix(); x = x.Add(time.Minute) {
 		t, ok := found[x.Unix()]
 		if ok {
-			fmt.Printf("[%v]: %v\n", x.Format(dateFmtStr), strings.Join(t, " "))
+			// fmt.Printf("[%v]: %v\n", x.Format(dateFmtStr), strings.Join(t, " "))
+			date := x
+			if date.Hour() != 0 {
+				diff, _ := time.ParseDuration(fmt.Sprintf("%vm", 60-date.Minute()))
+				date = date.Add(diff)
+			}
+
+			a := date.Format("2006-01-02")
+
+			switch t[0] {
+			case "Guard":
+				guardID = strings.Replace(t[1], "#", "", -1)
+
+				y, ok := test[guardID]
+				if !ok {
+					y = map[string][]int{}
+				}
+				y[a] = genShift()
+				// fmt.Printf("created guard shift for guard %v on %v\n", guardID, date.Format("2006-01-02"))
+				test[guardID] = y
+
+				z, ok := asleepCount[guardID]
+				if !ok {
+					z = genShift()
+					asleepCount[guardID] = fill(z, 0, 0)
+				}
+
+			case "wakes":
+				// fmt.Printf("on %v guard %v wakes up! (min: %v)\n", date.Format("2006-01-02"), guardID, date.Minute())
+				y, ok := test[guardID]
+				if !ok {
+					panic(fmt.Errorf("this shouldn't happen"))
+				}
+				z, ok := y[a]
+				if !ok {
+					panic(fmt.Errorf("this should also not happen"))
+				}
+				z = fill(z, date.Minute(), awake)
+				test[guardID][a] = z
+
+				a := asleepCount[guardID]
+				asleepCount[guardID] = add(a, date.Minute(), -1)
+			case "falls":
+				// fmt.Printf("on %v guard %v falls asleep! (min: %v)\n", date.Format("2006-01-02"), guardID, date.Minute())
+				y, ok := test[guardID]
+				if !ok {
+					panic(fmt.Errorf("this shouldn't happen"))
+				}
+				z, ok := y[a]
+				if !ok {
+					panic(fmt.Errorf("this should also not happen"))
+				}
+				z = fill(z, date.Minute(), asleep)
+				test[guardID][a] = z
+
+				a := asleepCount[guardID]
+				asleepCount[guardID] = add(a, date.Minute(), +1)
+			}
 		}
 	}
 
-	spew.Dump(begin, end)
+	highest := struct {
+		id     string
+		count  int
+		minute int
+	}{"", 0, 0}
+
+	for gid := range test {
+		fmt.Printf("guard id: %v - ", gid)
+		// for d, shift := range shifts {
+		// 	fmt.Printf("%v  => ", d)
+		// 	for _, v := range shift {
+		// 		switch v {
+		// 		case awake:
+		// 			fmt.Printf(".")
+		// 		case asleep:
+		// 			fmt.Printf("#")
+		// 		}
+		// 	}
+		// 	fmt.Printf("\n")
+		// }
+
+		count := asleepCount[gid]
+
+		for i, x := range count {
+			if x > highest.count {
+				highest.minute = i
+				highest.count = x
+				highest.id = gid
+			}
+		}
+
+		fmt.Printf("%v\n", strings.Join(mapIntToString(count), ","))
+	}
+	spew.Dump(highest)
+}
+
+func genShift() []int {
+	len := 60
+	out := make([]int, len)
+	for i := range out {
+		out[i] = awake
+	}
+	return out
+}
+
+func fill(in []int, start, fill int) []int {
+	for i := start; i < len(in); i++ {
+		in[i] = fill
+	}
+	return in
+}
+
+func add(in []int, start, add int) []int {
+	for i := start; i < len(in); i++ {
+		in[i] += add
+	}
+	return in
+}
+
+func mapIntToString(in []int) []string {
+	out := []string{}
+	for _, i := range in {
+		x := strconv.Itoa(i)
+		out = append(out, x)
+	}
+	return out
 }
