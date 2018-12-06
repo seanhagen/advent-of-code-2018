@@ -1,6 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
+
+	"github.com/davecgh/go-spew/spew"
+)
 
 /*
 --- Part Two ---
@@ -24,5 +31,94 @@ What is the length of the shortest polymer you can produce by removing all units
 */
 
 func main() {
-	fmt.Printf("not yet")
+	f, err := os.Open("../input-part2.txt")
+	if err != nil {
+		fmt.Printf("unable to open polymer file! reason: %v\n", err)
+		os.Exit(1)
+	}
+
+	tmp, err := ioutil.ReadAll(f)
+	if err != nil {
+		fmt.Printf("unable to read from input file: %v\n", err)
+		os.Exit(1)
+	}
+	input := string(tmp[:len(tmp)-1])
+	types := getTypes(input)
+
+	lengths := map[string]int{}
+
+	for _, t := range types {
+		o := removePotentialProblem(input, t)
+		lengths[t] = len(o)
+	}
+
+	shortest := len(input)
+	remove := ""
+
+	for r, l := range lengths {
+		if l < shortest {
+			shortest = l
+			remove = r
+		}
+	}
+
+	spew.Dump(shortest, remove)
+
+}
+
+func getTypes(in string) []string {
+	bits := strings.Split(in, "")
+	found := map[string]bool{}
+
+	for _, b := range bits {
+		x := strings.ToLower(b)
+		found[x] = true
+	}
+
+	out := []string{}
+
+	for k := range found {
+		out = append(out, k)
+	}
+
+	return out
+}
+
+func removePotentialProblem(in, p string) string {
+	in = strings.Replace(in, p, "", -1)
+	in = strings.Replace(in, strings.ToUpper(p), "", -1)
+	return processChain(in)
+}
+
+func processChain(in string) string {
+begin:
+	start := len(in)
+	out := pass(in)
+
+	if len(out) == 0 {
+		return out
+	}
+
+	if len(out) == start {
+		return out
+	}
+
+	in = out
+	goto begin
+}
+
+func pass(in string) string {
+	for i := range in {
+		if i == 0 {
+			continue
+		}
+		if i >= len(in) {
+			break
+		}
+		if in[i]^in[i-1] == 32 {
+			in = in[:i-1] + in[i+1:]
+			i = -1
+		}
+	}
+	return in
 }
