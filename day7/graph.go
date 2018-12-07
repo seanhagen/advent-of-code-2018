@@ -148,36 +148,50 @@ func (g Graph) FirstNodes() []*Node {
 	return first
 }
 
-// Print ...
 func (g Graph) Print() string {
 	f := g.FirstNodes()
 
-	fmt.Printf("have %v nodes\n", len(g.nodes))
-
 	elements := []*Node{}
-	elements = append(elements, f...)
 
-	for i := 0; i < len(elements); i++ {
-		x := i + 1
-		n := elements[i]
-		children := g.Children(n)
+	toAdd := []*Node{}
+	toAdd = append(toAdd, f...)
 
-		for _, m := range children {
-			met := m.MeetsRequirements(elements[:x])
-			added := false
+	sort.Slice(toAdd, func(i, j int) bool { return toAdd[i].Name < toAdd[j].Name })
 
-			for _, z := range elements {
-				if m == z {
-					added = true
+	for i := 0; i < len(toAdd); i++ {
+		n := toAdd[i]
+		met := n.MeetsRequirements(elements)
+		if met {
+			// add node to elements
+			found := false
+			for _, m := range elements {
+				if m == n {
+					found = true
 				}
 			}
-
-			if met && !added {
-				elements = append(elements, &Node{})
-				copy(elements[x+1:], elements[x:])
-				elements[x] = m
-				x++
+			if !found {
+				elements = append(elements, n)
 			}
+
+			// remove node from toAdd
+			copy(toAdd[i:], toAdd[i+1:])
+			toAdd[len(toAdd)-1] = nil // or the zero value of T
+			toAdd = toAdd[:len(toAdd)-1]
+
+			// fetch nodes children
+			children := g.Children(n)
+			// add children to toAdd
+			toAdd = append(toAdd, children...)
+
+			// sort toAdd by node name alphabetically
+			sort.Slice(toAdd, func(i, j int) bool { return toAdd[i].Name < toAdd[j].Name })
+
+			// start over at the beginning
+			i = -1
+		}
+
+		if len(toAdd) == 0 {
+			break
 		}
 	}
 
@@ -186,7 +200,6 @@ func (g Graph) Print() string {
 		out = fmt.Sprintf("%v%v", out, n.Name)
 	}
 
-	fmt.Printf("chain has %v elements\n", len(out))
 	return out
 }
 

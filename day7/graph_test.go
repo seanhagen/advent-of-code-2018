@@ -8,13 +8,7 @@ import (
 )
 
 func TestFirstNode(t *testing.T) {
-	f := lib.LoadInput("./fake.txt")
-	g := &Graph{}
-	err := g.Setup(f)
-	if err != nil {
-		t.Errorf("got error setting up graph: %v", err)
-		t.FailNow()
-	}
+	g := setup("./fake.txt", t)
 
 	n := g.FirstNodes()
 	tmp := []string{}
@@ -36,13 +30,7 @@ func TestFirstNode(t *testing.T) {
 }
 
 func TestFirstNodeChildren(t *testing.T) {
-	f := lib.LoadInput("./fake.txt")
-	g := &Graph{}
-	err := g.Setup(f)
-	if err != nil {
-		t.Errorf("got error setting up graph: %v", err)
-		t.FailNow()
-	}
+	g := setup("./fake.txt", t)
 
 	x := g.FirstNodes()
 	n := x[0]
@@ -63,13 +51,7 @@ func TestFirstNodeChildren(t *testing.T) {
 }
 
 func TestOutput(t *testing.T) {
-	f := lib.LoadInput("./fake.txt")
-	g := &Graph{}
-	err := g.Setup(f)
-	if err != nil {
-		t.Errorf("got error setting up graph: %v", err)
-		t.FailNow()
-	}
+	g := setup("./fake.txt", t)
 
 	expect := "CABDFE"
 	got := g.Print()
@@ -80,13 +62,7 @@ func TestOutput(t *testing.T) {
 }
 
 func TestMultipleStartNodes(t *testing.T) {
-	f := lib.LoadInput("./fake2.txt")
-	g := &Graph{}
-	err := g.Setup(f)
-	if err != nil {
-		t.Errorf("got error setting up graph: %v", err)
-		t.FailNow()
-	}
+	g := setup("./fake2.txt", t)
 
 	expect := "ABCED"
 	got := g.Print()
@@ -94,4 +70,26 @@ func TestMultipleStartNodes(t *testing.T) {
 	if expect != got {
 		t.Errorf("wrong output, expected '%v', got '%v'", expect, got)
 	}
+}
+
+func TestPart1(t *testing.T) {
+	g := setup("./input.txt", t)
+
+	expect := "EPWCFXKISTZVJHDGNABLQYMORU"
+	got := g.Print()
+
+	if expect != got {
+		t.Errorf("part 1 is broken!\n\texpected '%v'\n\tgot:   '%v'", expect, got)
+	}
+}
+
+func setup(path string, t *testing.T) *Graph {
+	f := lib.LoadInput(path)
+	g := &Graph{}
+	err := g.Setup(f)
+	if err != nil {
+		t.Errorf("got error setting up graph: %v", err)
+		t.FailNow()
+	}
+	return g
 }

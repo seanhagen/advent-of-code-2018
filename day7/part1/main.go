@@ -85,5 +85,11 @@ func main() {
 		os.Exit(1)
 	}
 	chain := g.Print()
+
+	l := g.Last()
+	for _, x := range l.Requires {
+		fmt.Printf("node %v requires %v\n", l.Name, x.Name)
+	}
+
 	fmt.Printf("order: \n\n%v\n\n", chain)
 }
