@@ -49,6 +49,14 @@ With 5 workers and the 60+ second step durations described above, how long will 
 complete all of the steps?
 */
 
+/*
+notes:
+
+- graph needs to keep track of "completed" and "unfinished" nodes
+- needs a function to grab "next"
+*/
+
 func main() {
+
 	fmt.Printf("oh lord\n")
 }
