@@ -1,6 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+
+	"github.com/seanhagen/advent-of-code-2018/day7"
+	"github.com/seanhagen/advent-of-code-2018/lib"
+)
 
 /*
 --- Day 7: The Sum of Its Parts ---
@@ -71,5 +77,13 @@ In what order should the steps in your instructions be completed?
 */
 
 func main() {
-	fmt.Printf("nope!")
+	f := lib.LoadInput("../input.txt")
+	g := &day7.Graph{}
+	err := g.Setup(f)
+	if err != nil {
+		fmt.Printf("got error setting up graph: %v\n", err)
+		os.Exit(1)
+	}
+	chain := g.Print()
+	fmt.Printf("order: \n\n%v\n\n", chain)
 }
