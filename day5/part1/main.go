@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+
+	"github.com/seanhagen/advent-of-code-2018/lib"
 )
 
 /*
@@ -41,11 +43,7 @@ How many units remain after fully reacting the polymer you scanned?
 */
 
 func main() {
-	f, err := os.Open("../input.txt")
-	if err != nil {
-		fmt.Printf("unable to open polymer file! reason: %v\n", err)
-		os.Exit(1)
-	}
+	f := lib.LoadInput("../input.txt")
 
 	input, err := ioutil.ReadAll(f)
 	if err != nil {

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/seanhagen/advent-of-code-2018/lib"
 )
 
 /*
@@ -31,20 +31,14 @@ type pickedGuard struct {
 }
 
 func main() {
-	f, err := os.Open("../input.txt")
-	if err != nil {
-		fmt.Printf("unable to open frequency file! reason: %v\n", err)
-		os.Exit(1)
-	}
+	f := lib.LoadInput("../input.txt")
 
 	found := map[int64][]string{}
 
 	begin := time.Date(3000, 1, 1, 0, 0, 0, 0, time.Local)
 	end := time.Date(1, 1, 1, 0, 0, 0, 0, time.Local)
 
-	r := bufio.NewReader(f)
-	line, _, err := r.ReadLine()
-	for ; err == nil; line, _, err = r.ReadLine() {
+	lib.LoopOverLines(f, func(line []byte) error {
 		bits := strings.Fields(string(line))
 
 		datestr := fmt.Sprintf(
@@ -67,7 +61,8 @@ func main() {
 			end = t
 		}
 		found[t.Unix()] = bits[2:]
-	}
+		return nil
+	})
 
 	test := map[string]bool{}
 	asleepCount := map[string][]int{}

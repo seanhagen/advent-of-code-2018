@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strings"
+
+	"github.com/seanhagen/advent-of-code-2018/lib"
 )
 
 /*
@@ -49,25 +49,17 @@ What is the checksum for your list of box IDs?
 */
 
 func main() {
-	f, err := os.Open("./input.txt")
-	if err != nil {
-		fmt.Printf("unable to open frequency file! reason: %v\n", err)
-		os.Exit(1)
-	}
-
-	r := bufio.NewReader(f)
+	f := lib.LoadInput("../input.txt")
 
 	hasTwo := 0
 	hasThree := 0
 
-	line, _, err := r.ReadLine()
-	for ; err == nil; line, _, err = r.ReadLine() {
+	lib.LoopOverLines(f, func(line []byte) error {
 		a, b := countr(string(line))
 		hasTwo += a
 		hasThree += b
-
-		fmt.Printf("line: %v\ta: %v\tb: %v\n", string(line), a, b)
-	}
+		return nil
+	})
 
 	fmt.Printf("checksum: %v\n", hasTwo*hasThree)
 }

@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
+
+	"github.com/seanhagen/advent-of-code-2018/lib"
 )
 
 /*
@@ -220,25 +220,17 @@ func (c *claim) parse(in string) error {
 }
 
 func main() {
-	f, err := os.Open(file)
-	if err != nil {
-		fmt.Printf("unable to open input: %v\n", err)
-		os.Exit(1)
-	}
+	f := lib.LoadInput("../input.txt")
 
 	b := &board{}
 	b.setup()
 
-	r := bufio.NewReader(f)
-	line, _, err := r.ReadLine()
-	for ; err == nil; line, _, err = r.ReadLine() {
+	lib.LoopOverLines(f, func(line []byte) error {
 		c := &claim{}
 		c.parse(string(line))
 		b.add(c)
-	}
-
-	// out := b.out()
-	// fmt.Printf("got: \n%v\n\n", out)
+		return nil
+	})
 
 	fmt.Printf("overlapping inches: %v\n\n", b.count())
 }

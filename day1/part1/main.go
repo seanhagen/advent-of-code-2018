@@ -1,14 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strconv"
+
+	"github.com/seanhagen/advent-of-code-2018/lib"
 )
 
 /*
-
 --- Day 1: Chronal Calibration ---
 "We've detected some temporal anomalies," one of Santa's Elves at the Temporal Anomaly Research and Detection Instrument Station tells you.
 She sounded pretty worried when she called you down here. "At 500-year intervals into the past, someone has been changing Santa's history!"
@@ -47,33 +46,19 @@ Starting with a frequency of zero, what is the resulting frequency after all of 
 */
 
 func main() {
-	f, err := os.Open("./input.txt")
-	if err != nil {
-		fmt.Printf("unable to open frequency file! reason: %v\n", err)
-		os.Exit(1)
-	}
-
+	f := lib.LoadInput("../input.txt")
 	freq := 0
 
-	r := bufio.NewReader(f)
-	line, _, err := r.ReadLine()
-	for ; err == nil; line, _, err = r.ReadLine() {
-		fmt.Printf("sign is '%v', value is %v\n", string(line[0]), string(line[1:]))
-		sign := string(line[0])
-		tmp := string(line[1:])
-		val, err := strconv.Atoi(tmp)
+	lib.LoopOverLines(f, func(line []byte) error {
+		// sign := string(line[0])
+		// tmp := string(line[1:])
+		val, err := strconv.Atoi(string(line))
 		if err != nil {
-			fmt.Printf("unable to parse frequency change: %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("unable to parse frequency change: %v\n", err)
 		}
-
-		switch sign {
-		case "-":
-			freq -= val
-		case "+":
-			freq += val
-		}
-	}
+		freq += val
+		return nil
+	})
 
 	fmt.Printf("final frequency value: %v\n", freq)
 }

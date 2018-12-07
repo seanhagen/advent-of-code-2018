@@ -1,11 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strings"
 
+	"github.com/seanhagen/advent-of-code-2018/lib"
 	"github.com/texttheater/golang-levenshtein/levenshtein"
 )
 
@@ -46,17 +45,12 @@ func main() {
 		},
 	}
 
-	f, err := os.Open("./input.txt")
-	if err != nil {
-		fmt.Printf("unable to open frequency file! reason: %v\n", err)
-		os.Exit(1)
-	}
+	f := lib.LoadInput("../input.txt")
 
-	r := bufio.NewReader(f)
-	line, _, err := r.ReadLine()
-	for ; err == nil; line, _, err = r.ReadLine() {
+	lib.LoopOverLines(f, func(line []byte) error {
 		ids = append(ids, string(line))
-	}
+		return nil
+	})
 
 	var a, b string
 

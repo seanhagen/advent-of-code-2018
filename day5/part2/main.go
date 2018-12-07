@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/seanhagen/advent-of-code-2018/lib"
 )
 
 /*
@@ -31,11 +32,7 @@ What is the length of the shortest polymer you can produce by removing all units
 */
 
 func main() {
-	f, err := os.Open("../input-part2.txt")
-	if err != nil {
-		fmt.Printf("unable to open polymer file! reason: %v\n", err)
-		os.Exit(1)
-	}
+	f := lib.LoadInput("../input.txt")
 
 	tmp, err := ioutil.ReadAll(f)
 	if err != nil {

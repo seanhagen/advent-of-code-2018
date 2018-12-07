@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strconv"
+
+	"github.com/seanhagen/advent-of-code-2018/lib"
 )
 
 /*
@@ -39,32 +39,25 @@ func main() {
 	found := map[int]int{0: 1}
 
 	for {
-		f, err := os.Open("./input.txt")
-		if err != nil {
-			fmt.Printf("unable to open frequency file! reason: %v\n", err)
-			os.Exit(1)
-		}
+		f := lib.LoadInput("../input.txt")
 
-		r := bufio.NewReader(f)
-		line, _, err := r.ReadLine()
-		for ; err == nil; line, _, err = r.ReadLine() {
+		lib.LoopOverLines(f, func(line []byte) error {
 			val, err := strconv.Atoi(string(line))
 			if err != nil {
-				fmt.Printf("unable to parse frequency change: %v\n", err)
-				os.Exit(1)
+				return fmt.Errorf("unable to parse frequency change: %v\n", err)
 			}
 
-			fmt.Printf("\ncurrent frequency: %v \tchange of %v \t\tresulting frequency ", freq, string(line))
+			// fmt.Printf("\ncurrent frequency: %v \tchange of %v \t\tresulting frequency ", freq, string(line))
 
 			freq += val
 			found[freq]++
 
-			fmt.Printf("%v \t\t len found: %v", freq, len(found))
+			// fmt.Printf("%v \t\t len found: %v", freq, len(found))
 
 			if found[freq] == 2 {
-				fmt.Printf("\nreached twice: %v\n", freq)
-				os.Exit(0)
+				return fmt.Errorf("reached twice: %v", freq)
 			}
-		}
+			return nil
+		})
 	}
 }

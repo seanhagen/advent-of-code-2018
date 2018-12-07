@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 /*
 --- Day 6: Chronal Coordinates ---
 The device on your wrist beeps several times, and once again you feel like you're falling.
@@ -66,5 +68,5 @@ What is the size of the largest area that isn't infinite?
 */
 
 func main() {
-
+	fmt.Printf("not done yet!")
 }
