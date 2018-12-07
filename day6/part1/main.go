@@ -1,6 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+
+	"github.com/seanhagen/advent-of-code-2018/lib"
+)
 
 /*
 --- Day 6: Chronal Coordinates ---
@@ -68,18 +73,15 @@ What is the size of the largest area that isn't infinite?
 */
 
 func main() {
-	//https://github.com/x6doooo/guidetodatamining-golang/blob/master/src/chapter4/Manhattan.go
-	/*
-		func Manhattan(vector1, vector2 []float64) float64 {
-		    var distance float64 = 0
+	f := lib.LoadInput("../input.txt")
+	b := &board{}
+	err := b.setup(f)
+	if err != nil {
+		fmt.Printf("unable to setup board: %v\n", err)
+		os.Exit(1)
+	}
+	b.compute()
 
-		    for i, val1 := range vector1 {
-		        distance += math.Abs(val1 - vector2[i])
-		    }
-
-		    return distance
-		}
-	*/
-
-	fmt.Printf("not done yet!")
+	foundID, highest := b.largestFinite()
+	fmt.Printf("id %v has the largest area: %v\n", foundID, highest)
 }
