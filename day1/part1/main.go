@@ -50,8 +50,6 @@ func main() {
 	freq := 0
 
 	lib.LoopOverLines(f, func(line []byte) error {
-		// sign := string(line[0])
-		// tmp := string(line[1:])
 		val, err := strconv.Atoi(string(line))
 		if err != nil {
 			return fmt.Errorf("unable to parse frequency change: %v\n", err)
