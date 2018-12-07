@@ -7,9 +7,10 @@ import (
 )
 
 type point struct {
-	id int
-	x  int
-	y  int
+	id      int
+	x       int
+	y       int
+	covered bool
 }
 
 // parse ...

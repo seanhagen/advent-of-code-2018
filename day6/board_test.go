@@ -142,6 +142,27 @@ func TestSafe(t *testing.T) {
 	}
 }
 
+func TestSafeArea(t *testing.T) {
+	f := lib.LoadInput("./fake.txt")
+	b := &Board{}
+	err := b.Setup(f)
+	if err != nil {
+		t.Errorf("unable to setup board: %v", err)
+	}
+
+	dist := 32
+
+	b.ComputePart2(dist)
+
+	expect := 16
+
+	got := b.Part2Area()
+
+	if got != expect {
+		t.Errorf("wrong area, expected %v got %v", expect, got)
+	}
+}
+
 func arEq(a, b []int) bool {
 	sort.Slice(a, func(i, j int) bool { return a[i] < a[j] })
 	sort.Slice(b, func(i, j int) bool { return b[i] < b[j] })

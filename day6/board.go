@@ -161,16 +161,43 @@ func (b *Board) ComputePart2(target int) {
 			if total < target {
 				square := b.board[y][x]
 
-				//fmt.Printf("square[%v][%v] = %v, total: %v, target: %v, empty: %v\n", y, x, square, total, target, empty)
-
 				if square == empty {
 					square = closest
+				} else {
+					for i, p := range b.points {
+						if p.x == x && p.y == y {
+							p.covered = true
+						}
+						b.points[i] = p
+					}
 				}
 
 				b.board[y][x] = square
 			}
 		}
 	}
+}
+
+// Part2Area ...
+func (b *Board) Part2Area() int {
+	out := 0
+
+	for y := 0; y <= b.height; y++ {
+		for x := 0; x <= b.width; x++ {
+			square := b.board[y][x]
+			if square == closest {
+				out++
+			}
+		}
+	}
+
+	for _, p := range b.points {
+		if p.covered {
+			out++
+		}
+	}
+
+	return out
 }
 
 // infinite ...
