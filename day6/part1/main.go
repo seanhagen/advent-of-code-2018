@@ -69,6 +69,17 @@ What is the size of the largest area that isn't infinite?
 
 func main() {
 	//https://github.com/x6doooo/guidetodatamining-golang/blob/master/src/chapter4/Manhattan.go
+	/*
+		func Manhattan(vector1, vector2 []float64) float64 {
+		    var distance float64 = 0
+
+		    for i, val1 := range vector1 {
+		        distance += math.Abs(val1 - vector2[i])
+		    }
+
+		    return distance
+		}
+	*/
 
 	fmt.Printf("not done yet!")
 }
