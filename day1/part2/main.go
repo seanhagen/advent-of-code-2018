@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/seanhagen/advent-of-code-2018/lib"
@@ -47,15 +48,12 @@ func main() {
 				return fmt.Errorf("unable to parse frequency change: %v\n", err)
 			}
 
-			// fmt.Printf("\ncurrent frequency: %v \tchange of %v \t\tresulting frequency ", freq, string(line))
-
 			freq += val
 			found[freq]++
 
-			// fmt.Printf("%v \t\t len found: %v", freq, len(found))
-
 			if found[freq] == 2 {
-				return fmt.Errorf("reached twice: %v", freq)
+				fmt.Printf("reached twice: %v\n\n", freq)
+				os.Exit(0)
 			}
 			return nil
 		})
