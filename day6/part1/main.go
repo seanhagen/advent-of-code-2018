@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/seanhagen/advent-of-code-2018/day6"
 	"github.com/seanhagen/advent-of-code-2018/lib"
 )
 
@@ -74,14 +75,14 @@ What is the size of the largest area that isn't infinite?
 
 func main() {
 	f := lib.LoadInput("../input.txt")
-	b := &board{}
-	err := b.setup(f)
+	b := &day6.Board{}
+	err := b.Setup(f)
 	if err != nil {
 		fmt.Printf("unable to setup board: %v\n", err)
 		os.Exit(1)
 	}
-	b.compute()
+	b.Compute()
 
-	foundID, highest := b.largestFinite()
+	foundID, highest := b.LargestFinite()
 	fmt.Printf("id %v has the largest area: %v\n", foundID, highest)
 }

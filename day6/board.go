@@ -1,4 +1,4 @@
-package main
+package day6
 
 import (
 	"fmt"
@@ -16,9 +16,11 @@ const marks = "ABCDEFGHIJKLMNOP1234567890!@#$%^&*()[]{}|;:',<.>/?`~`"
 const empty = -1 * 100 * 100 * 100
 const doubleClaim = -1 * 1000 * 1000 * 1000
 
+const closest = empty * 5
+
 type row []int
 
-type board struct {
+type Board struct {
 	width  int
 	height int
 	points []*point
@@ -26,7 +28,7 @@ type board struct {
 }
 
 // setup ...
-func (b *board) setup(in *os.File) error {
+func (b *Board) Setup(in *os.File) error {
 	b.board = []row{}
 	b.points = []*point{}
 
@@ -64,7 +66,7 @@ func (b *board) setup(in *os.File) error {
 }
 
 // fill ...
-func (b *board) fill() {
+func (b *Board) fill() {
 	for y := 0; y <= b.height; y++ {
 		r := row{}
 		for x := 0; x <= b.width; x++ {
@@ -79,7 +81,7 @@ func (b *board) fill() {
 }
 
 // print ...
-func (b *board) print() string {
+func (b *Board) Print() string {
 	out := ""
 	for _, row := range b.board {
 		for _, col := range row {
@@ -88,6 +90,8 @@ func (b *board) print() string {
 				out = fmt.Sprintf("%v%v", out, ".")
 			case doubleClaim:
 				out = fmt.Sprintf("%v%v", out, ".")
+			case closest:
+				out = fmt.Sprintf("%v%v", out, "#")
 			default:
 				idx := int(math.Abs(float64(col))) - 1
 				x := string(marks[idx])
@@ -103,7 +107,7 @@ func (b *board) print() string {
 }
 
 // compute ...
-func (b *board) compute() {
+func (b *Board) Compute() {
 	for y := 0; y <= b.height; y++ {
 		for x := 0; x <= b.width; x++ {
 			lowest := b.width * b.height
@@ -124,7 +128,6 @@ func (b *board) compute() {
 			}
 
 			bits := found[lowest]
-
 			square := b.board[y][x]
 
 			if len(bits) > 1 {
@@ -143,8 +146,35 @@ func (b *board) compute() {
 	}
 }
 
+// computePart2 ...
+func (b *Board) ComputePart2(target int) {
+	for y := 0; y <= b.height; y++ {
+		for x := 0; x <= b.width; x++ {
+			distances := []int{}
+
+			for _, p := range b.points {
+				d := p.manhatdist(x, y)
+				distances = append(distances, d)
+			}
+
+			total := sumSlice(distances)
+			if total < target {
+				square := b.board[y][x]
+
+				//fmt.Printf("square[%v][%v] = %v, total: %v, target: %v, empty: %v\n", y, x, square, total, target, empty)
+
+				if square == empty {
+					square = closest
+				}
+
+				b.board[y][x] = square
+			}
+		}
+	}
+}
+
 // infinite ...
-func (b board) infinite() []int {
+func (b Board) Infinite() []int {
 	found := map[int]bool{}
 
 	for y := 0; y <= b.height; y++ {
@@ -181,8 +211,8 @@ func (b board) infinite() []int {
 }
 
 // finite ...
-func (b board) finite() map[int]int {
-	tmp := b.infinite()
+func (b Board) Finite() map[int]int {
+	tmp := b.Infinite()
 	out := map[int]int{}
 
 	for _, p := range b.points {
@@ -209,11 +239,11 @@ func (b board) finite() map[int]int {
 }
 
 // largestFinite ...
-func (b board) largestFinite() (int, int) {
+func (b Board) LargestFinite() (int, int) {
 	highest := 0
 	foundID := 0
 
-	tmp := b.finite()
+	tmp := b.Finite()
 	for id, area := range tmp {
 		if area > highest {
 			highest = area
@@ -237,4 +267,12 @@ func intIn(c []int, i int) bool {
 		}
 	}
 	return false
+}
+
+func sumSlice(in []int) int {
+	out := 0
+	for _, x := range in {
+		out += x
+	}
+	return out
 }

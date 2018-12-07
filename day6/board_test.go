@@ -1,7 +1,6 @@
-package main
+package day6
 
 import (
-	"fmt"
 	"sort"
 	"testing"
 
@@ -21,14 +20,14 @@ func TestBoard(t *testing.T) {
 ........F.
 `
 
-	f := lib.LoadInput("../fake.txt")
-	b := &board{}
-	err := b.setup(f)
+	f := lib.LoadInput("./fake.txt")
+	b := &Board{}
+	err := b.Setup(f)
 	if err != nil {
 		t.Errorf("unable to setup board: %v", err)
 	}
 
-	got := b.print()
+	got := b.Print()
 
 	if expect != got {
 		t.Errorf("got bad board:\n expected:\n%v\n\ngot:\n%v\n\n", expect, got)
@@ -48,17 +47,16 @@ bbb.eeffff
 bbb.ffffFf
 `
 
-	f := lib.LoadInput("../fake.txt")
+	f := lib.LoadInput("./fake.txt")
 
-	b := &board{}
-	err := b.setup(f)
+	b := &Board{}
+	err := b.Setup(f)
 	if err != nil {
 		t.Errorf("unable to setup board: %v", err)
 	}
 
-	b.compute()
-
-	got := b.print()
+	b.Compute()
+	got := b.Print()
 
 	// fmt.Printf("\n\n%v\n\n", got)
 
@@ -71,15 +69,15 @@ bbb.ffffFf
 func TestInfinite(t *testing.T) {
 	should := []int{6, 1, 2, 3}
 
-	f := lib.LoadInput("../fake.txt")
-	b := &board{}
-	err := b.setup(f)
+	f := lib.LoadInput("./fake.txt")
+	b := &Board{}
+	err := b.Setup(f)
 	if err != nil {
 		t.Errorf("unable to setup board: %v", err)
 	}
 
-	b.compute()
-	inf := b.infinite()
+	b.Compute()
+	inf := b.Infinite()
 	got := []int{}
 	for _, p := range inf {
 		got = append(got, p)
@@ -91,18 +89,18 @@ func TestInfinite(t *testing.T) {
 }
 
 func TestFindLargest(t *testing.T) {
-	f := lib.LoadInput("../fake.txt")
-	b := &board{}
-	err := b.setup(f)
+	f := lib.LoadInput("./fake.txt")
+	b := &Board{}
+	err := b.Setup(f)
 	if err != nil {
 		t.Errorf("unable to setup board: %v", err)
 	}
-	b.compute()
+	b.Compute()
 
 	should := 5
 	area := 17
 
-	foundID, highest := b.largestFinite()
+	foundID, highest := b.LargestFinite()
 
 	if foundID != should {
 		t.Errorf("didn't find largest safe area, expected %v got %v", should, foundID)
@@ -126,8 +124,22 @@ func TestSafe(t *testing.T) {
 ........F.
 `
 
-	fmt.Printf("\n\n%v\n\n", expect)
-	t.Errorf("bah")
+	f := lib.LoadInput("./fake.txt")
+	b := &Board{}
+	err := b.Setup(f)
+	if err != nil {
+		t.Errorf("unable to setup board: %v", err)
+	}
+
+	dist := 32
+
+	b.ComputePart2(dist)
+
+	got := b.Print()
+
+	if got != expect {
+		t.Errorf("didn't get right output!\n\nexpect:\n%v\n\ngot:\n%v\n\n", expect, got)
+	}
 }
 
 func arEq(a, b []int) bool {
