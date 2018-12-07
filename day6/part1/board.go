@@ -5,6 +5,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/seanhagen/advent-of-code-2018/lib"
@@ -27,11 +28,9 @@ type board struct {
 // setup ...
 func (b *board) setup(in *os.File) error {
 	b.board = []row{}
-
 	b.points = []*point{}
 
 	id := 1
-
 	err := lib.LoopOverLines(in, func(line []byte) error {
 		p := &point{
 			id: id,
@@ -58,6 +57,7 @@ func (b *board) setup(in *os.File) error {
 	if err != nil && err != io.EOF {
 		return err
 	}
+	b.width++
 
 	b.fill()
 	return nil
@@ -65,9 +65,9 @@ func (b *board) setup(in *os.File) error {
 
 // fill ...
 func (b *board) fill() {
-	for i := 0; i <= b.height; i++ {
+	for y := 0; y <= b.height; y++ {
 		r := row{}
-		for j := 0; j <= b.width+1; j++ {
+		for x := 0; x <= b.width; x++ {
 			r = append(r, empty)
 		}
 		b.board = append(b.board, r)
@@ -104,13 +104,13 @@ func (b *board) print() string {
 
 // compute ...
 func (b *board) compute() {
-	for i := 0; i <= b.height; i++ {
-		for j := 0; j <= b.width+1; j++ {
+	for y := 0; y <= b.height; y++ {
+		for x := 0; x <= b.width; x++ {
 			lowest := b.width * b.height
 			found := map[int][]*point{}
 
 			for _, p := range b.points {
-				d := p.manhatdist(j, i)
+				d := p.manhatdist(x, y)
 				if d < lowest {
 					lowest = d
 				}
@@ -125,20 +125,116 @@ func (b *board) compute() {
 
 			bits := found[lowest]
 
-			square := b.board[i][j]
+			square := b.board[y][x]
 
 			if len(bits) > 1 {
 				square = doubleClaim
 			} else {
 				c := bits[0]
-				if j == c.x && i == c.y {
+				if x == c.x && y == c.y {
 					square = bits[0].id
 				} else {
 					square = bits[0].id * -1
 				}
 
 			}
-			b.board[i][j] = square
+			b.board[y][x] = square
 		}
 	}
+}
+
+// infinite ...
+func (b board) infinite() []int {
+	found := map[int]bool{}
+
+	for y := 0; y <= b.height; y++ {
+		switch y {
+		case 0:
+			fallthrough
+		case b.height:
+			for x := 0; x < b.width; x++ {
+				id := int(math.Abs(float64(b.board[y][x])))
+				if shouldAdd(id) {
+					found[id] = true
+				}
+			}
+		default:
+			id := int(math.Abs(float64(b.board[y][0])))
+			if shouldAdd(id) {
+				found[id] = true
+			}
+
+			id = int(math.Abs(float64(b.board[y][b.width])))
+			if shouldAdd(id) {
+				found[id] = true
+			}
+		}
+	}
+
+	out := []int{}
+	for id := range found {
+		out = append(out, id)
+	}
+
+	sort.Slice(out, func(i, j int) bool { return out[i] < out[j] })
+	return out
+}
+
+// finite ...
+func (b board) finite() map[int]int {
+	tmp := b.infinite()
+	out := map[int]int{}
+
+	for _, p := range b.points {
+		if !intIn(tmp, p.id) {
+			out[p.id] = 0
+		}
+	}
+
+	for y := 0; y <= b.height; y++ {
+		for x := 0; x <= b.width; x++ {
+			k := b.board[y]
+			l := k[x]
+
+			id := int(math.Abs(float64(l)))
+			_, ok := out[id]
+			if ok {
+				out[id]++
+			}
+
+		}
+	}
+
+	return out
+}
+
+// largestFinite ...
+func (b board) largestFinite() (int, int) {
+	highest := 0
+	foundID := 0
+
+	tmp := b.finite()
+	for id, area := range tmp {
+		if area > highest {
+			highest = area
+			foundID = id
+		}
+	}
+
+	return foundID, highest
+}
+
+func shouldAdd(in int) bool {
+	a := int(math.Abs(float64(empty)))
+	b := int(math.Abs(float64(doubleClaim)))
+	return a != in && b != in
+}
+
+func intIn(c []int, i int) bool {
+	for _, x := range c {
+		if x == i {
+			return true
+		}
+	}
+	return false
 }
