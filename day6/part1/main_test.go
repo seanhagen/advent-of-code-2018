@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sort"
 	"testing"
 
@@ -110,6 +111,23 @@ func TestFindLargest(t *testing.T) {
 	if highest != area {
 		t.Errorf("found area not correct, expected %v got %v", area, highest)
 	}
+}
+
+func TestSafe(t *testing.T) {
+	expect := `..........
+.A........
+..........
+...###..C.
+..#D###...
+..###E#...
+.B.###....
+..........
+..........
+........F.
+`
+
+	fmt.Printf("\n\n%v\n\n", expect)
+	t.Errorf("bah")
 }
 
 func arEq(a, b []int) bool {
