@@ -11,7 +11,7 @@ import (
 	"github.com/seanhagen/advent-of-code-2018/lib"
 )
 
-const marks = "ABCDEFGHIJKLMNOP1234567890!@#$%^&*()[]{}|;:',<.>/?`~`"
+const marks = "ABCDEFGHIJKLMNOP1234567890!@#$%^&*()[]{}|;:',<.>/?`~"
 
 const empty = -1 * 100 * 100 * 100
 const doubleClaim = -1 * 1000 * 1000 * 1000
