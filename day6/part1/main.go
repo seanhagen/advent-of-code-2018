@@ -68,5 +68,7 @@ What is the size of the largest area that isn't infinite?
 */
 
 func main() {
+	//https://github.com/x6doooo/guidetodatamining-golang/blob/master/src/chapter4/Manhattan.go
+
 	fmt.Printf("not done yet!")
 }
