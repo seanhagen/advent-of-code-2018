@@ -83,6 +83,36 @@ func TestPart1(t *testing.T) {
 	}
 }
 
+func TestPart2Example(t *testing.T) {
+	expect := `Second   Worker 1   Worker 2   Done
+   0        C          .
+   1        C          .
+   2        C          .
+   3        A          F       C
+   4        B          F       CA
+   5        B          F       CA
+   6        D          F       CAB
+   7        D          F       CAB
+   8        D          F       CAB
+   9        D          .       CABF
+  10        E          .       CABFD
+  11        E          .       CABFD
+  12        E          .       CABFD
+  13        E          .       CABFD
+  14        E          .       CABFD
+  15        .          .       CABFDE
+`
+
+	g := setup("./fake.txt", t)
+	g.DoWork()
+
+	got := g.PrintWork()
+
+	if expect != got {
+		t.Errorf("unexpected output!\nexpected:\n%v\n\ngot:\n%v\n\n", expect, got)
+	}
+}
+
 func setup(path string, t *testing.T) *Graph {
 	f := lib.LoadInput(path)
 	g := &Graph{}

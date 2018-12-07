@@ -52,8 +52,18 @@ complete all of the steps?
 /*
 notes:
 
-- graph needs to keep track of "completed" and "unfinished" nodes
+graph:
+- needs to keep track of "completed" and "unfinished" nodes
 - needs a function to grab "next"
+
+- keep track of each node's start & complete times
+  - add 'start' & 'end' int fields to node
+
+- create 2d array for tracking worker x second
+
+node:
+- needs a function to compute time required to complete task
+
 */
 
 func main() {
