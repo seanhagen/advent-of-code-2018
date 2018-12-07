@@ -203,6 +203,16 @@ func (g Graph) Print() string {
 	return out
 }
 
+// DoWork ...
+func (g *Graph) DoWork() {
+
+}
+
+// PrintWork ...
+func (g *Graph) PrintWork() string {
+	return ""
+}
+
 // AddNode ...
 func (g *Graph) addNode(a string, requires ...string) *Node {
 	n := g.FindNode(a)
