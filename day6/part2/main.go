@@ -1,6 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+
+	"github.com/seanhagen/advent-of-code-2018/day6"
+	"github.com/seanhagen/advent-of-code-2018/lib"
+)
 
 /*
 --- Part Two ---
@@ -49,5 +55,18 @@ distance to all given coordinates of less than 10000?
 */
 
 func main() {
-	fmt.Printf("nothing yet\n\n")
+	f := lib.LoadInput("../input.txt")
+	b := &day6.Board{}
+	err := b.Setup(f)
+	if err != nil {
+		fmt.Printf("unable to setup board: %v\n", err)
+		os.Exit(1)
+	}
+
+	distance := 10000
+	b.ComputePart2(distance)
+
+	area := b.Part2Area()
+
+	fmt.Printf("area: %v\n", area)
 }
