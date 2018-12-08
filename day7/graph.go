@@ -13,6 +13,8 @@ import (
 // https://flaviocopes.com/golang-data-structure-graph/
 // https://godoc.org/github.com/gonum/graph
 
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
 // Node point in graph
 type Node struct {
 	Name     string
@@ -28,6 +30,36 @@ type Node struct {
 // AddRequirement ...
 func (n *Node) AddRequirement(m *Node) {
 	n.Requires = append(n.Requires, m)
+}
+
+// Setup ...
+func (n *Node) Setup(base int) {
+}
+
+// Start ...
+func (n *Node) Start(s, base int) {
+	// fmt.Printf("node starting: %v\n", n.Name)
+	for i := range letters {
+		l := string(letters[i])
+		if l == n.Name {
+			n.time = i + 1
+		}
+	}
+
+	n.start = s
+	n.end = s + n.time
+	n.working = true
+
+	fmt.Printf("node %v start %v end %v\n", n.Name, n.start, n.end)
+}
+
+// Done ...
+func (n *Node) Done(s int) bool {
+	if s == n.end {
+		n.working = false
+		return true
+	}
+	return false
 }
 
 // MeetsRequirements ...
@@ -62,6 +94,15 @@ func (n *Node) Test() []string {
 type Graph struct {
 	nodes map[string]*Node
 	edges map[*Node][]*Node
+
+	unstarted  []*Node
+	inProgress []*Node
+	done       []*Node
+	work       map[int][]int
+
+	baseWorkTime int
+	numWorkers   int
+	finishTime   int
 }
 
 // Last ...
@@ -209,14 +250,130 @@ func (g Graph) Print() string {
 	return out
 }
 
+func (g *Graph) SetupWork(workers, base int) {
+	g.numWorkers = workers
+	g.baseWorkTime = base
+
+	start := g.FirstNodes()
+
+	g.unstarted = append(g.unstarted, start...)
+}
+
 // DoWork ...
 func (g *Graph) DoWork() {
+	i := 0
+	for ; g.workLeft(); i++ {
+		fmt.Printf("second: %v\n", i)
 
+		for j := 0; j < len(g.inProgress); j++ {
+			n := g.inProgress[j]
+			if n.Done(i) {
+				fmt.Printf("node %v is done work! (sec: %v)\n", n.Name, i)
+				// spew.Dump(n)
+				children := g.Children(n)
+				fmt.Printf("node %v has %v children: ", n.Name, len(children))
+				for _, x := range children {
+					fmt.Printf("%v ", x.Name)
+				}
+				fmt.Printf("\n")
+
+				for _, x := range children {
+					found := false
+
+					for _, y := range g.unstarted {
+						if y == x {
+							found = true
+						}
+					}
+
+					if !found {
+						g.unstarted = append(g.unstarted, x)
+					}
+				}
+
+				//g.unstarted = append(g.unstarted, children...)
+
+				fmt.Printf("unstarted now contains: ")
+				for _, x := range g.unstarted {
+					fmt.Printf("%v ", x.Name)
+				}
+				fmt.Printf("\n")
+
+				sort.Slice(g.unstarted, func(i, j int) bool { return g.unstarted[i].Name < g.unstarted[j].Name })
+
+				g.done = append(g.done, n)
+
+				fmt.Printf("gotta remove node %v from in progress\n", n.Name)
+				fmt.Printf("currently in progress (len: %v): ", len(g.inProgress))
+				for _, x := range g.inProgress {
+					fmt.Printf("%v ", x.Name)
+				}
+				fmt.Printf("\n")
+
+				if len(g.inProgress) == 1 {
+					g.inProgress = []*Node{}
+				} else {
+					if i == len(g.inProgress)-1 {
+						g.inProgress = g.inProgress[:i-1]
+					} else {
+						fmt.Printf("copy: len: %v, i: %v\n", len(g.inProgress), j)
+						copy(g.inProgress[j:], g.inProgress[j+1:])
+						g.inProgress[len(g.inProgress)-1] = nil // or the zero value of T
+						g.inProgress = g.inProgress[:len(g.inProgress)-1]
+					}
+				}
+			}
+
+		}
+
+		if len(g.unstarted) > 0 {
+			toAdd := g.numWorkers - len(g.inProgress)
+			fmt.Printf("need to add %v jobs (len unstarted: %v)\n", toAdd, len(g.unstarted))
+			for j := 0; j < toAdd && j < len(g.unstarted); j++ {
+				n := g.unstarted[j]
+				n.Start(i, g.baseWorkTime)
+				fmt.Printf("adding node to be worked on: %v (start: %v, will end at: %v)\n", n.Name, n.start, n.end)
+				g.inProgress = append(g.inProgress, n)
+
+				copy(g.unstarted[j:], g.unstarted[j+1:])
+				g.unstarted[len(g.unstarted)-1] = nil // or the zero value of T
+				g.unstarted = g.unstarted[:len(g.unstarted)-1]
+				j = -1
+			}
+		}
+
+		// spew.Dump(g.unstarted, g.inProgress)
+		// break
+
+		fmt.Printf("------\n\n")
+
+		if len(g.done) == 26 {
+			break
+		}
+
+		if i > 1000 {
+			break
+		}
+
+	}
+
+	g.finishTime = i
+	fmt.Printf("work done\n")
+}
+
+// WorkDone ...
+func (g *Graph) workLeft() bool {
+	return len(g.unstarted) > 0 || len(g.inProgress) > 0
 }
 
 // PrintWork ...
 func (g *Graph) PrintWork() string {
 	return ""
+}
+
+// WorkTime ...
+func (g *Graph) WorkTime() int {
+	return g.finishTime
 }
 
 // AddNode ...

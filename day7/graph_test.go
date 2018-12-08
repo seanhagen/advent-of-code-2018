@@ -102,14 +102,30 @@ func TestPart2Example(t *testing.T) {
   14        E          .       CABFD
   15        .          .       CABFDE
 `
+	workers := 2
+	baseTime := 0
 
 	g := setup("./fake.txt", t)
+	g.SetupWork(workers, baseTime)
 	g.DoWork()
-
 	got := g.PrintWork()
 
 	if expect != got {
 		t.Errorf("unexpected output!\nexpected:\n%v\n\ngot:\n%v\n\n", expect, got)
+	}
+}
+
+func TestPart2Time(t *testing.T) {
+	workers := 2
+	baseTime := 0
+	g := setup("./fake.txt", t)
+	g.SetupWork(workers, baseTime)
+	g.DoWork()
+	out := g.WorkTime()
+
+	expect := 15
+	if expect != out {
+		t.Errorf("wrong work time, expected %v got %v", expect, out)
 	}
 }
 

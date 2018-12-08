@@ -1,6 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+
+	"github.com/seanhagen/advent-of-code-2018/day7"
+	"github.com/seanhagen/advent-of-code-2018/lib"
+)
 
 /*
 --- Part Two ---
@@ -67,6 +73,19 @@ node:
 */
 
 func main() {
+	f := lib.LoadInput("../input.txt")
+	g := &day7.Graph{}
+	err := g.Setup(f)
+	if err != nil {
+		fmt.Printf("got error setting up graph: %v\n", err)
+		os.Exit(1)
+	}
 
-	fmt.Printf("oh lord\n")
+	g.SetupWork(5, 60)
+
+	g.DoWork()
+
+	o := g.WorkTime()
+
+	fmt.Printf("time: %v\n", o)
 }
