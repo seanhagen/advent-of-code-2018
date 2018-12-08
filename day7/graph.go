@@ -17,6 +17,12 @@ import (
 type Node struct {
 	Name     string
 	Requires []*Node
+
+	start   int
+	end     int
+	working bool
+
+	time int
 }
 
 // AddRequirement ...
