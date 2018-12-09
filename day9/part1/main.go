@@ -1,5 +1,11 @@
 package main
 
+import (
+	"fmt"
+
+	"github.com/seanhagen/advent-of-code-2018/day9"
+)
+
 /*
 --- Day 9: Marble Mania ---
 You talk to the Elves while you wait for your navigation system to initialize.
@@ -21,11 +27,12 @@ marble that was just placed and the current marble.) The marble that was just pl
 then becomes the current marble.
 
 However, if the marble that is about to be placed has a number which is a multiple of
-23, something entirely different happens. First, the current player keeps the marble
-they would have placed, adding it to their score. In addition, the marble 7 marbles
-counter-clockwise from the current marble is removed from the circle and also added
-to the current player's score. The marble located immediately clockwise of the marble
-that was removed becomes the new current marble.
+23, something entirely different happens.
+
+- First, the current player keeps the marble they would have placed, adding it to their score.
+- In addition, the marble 7 marbles counter-clockwise from the current marble is removed
+  from the circle and also added to the current player's score.
+- The marble located immediately clockwise of the marble that was removed becomes the new current marble.
 
 For example, suppose there are 9 players. After the marble with value 0 is placed in
 the middle, each player (shown in square brackets) takes a turn. The result of each
@@ -76,5 +83,6 @@ What is the winning Elf's score?
 */
 
 func main() {
-
+	o := day9.RunGame(428, 72061)
+	fmt.Printf("winning score: %v\n", o)
 }
