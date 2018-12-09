@@ -120,8 +120,7 @@ func TestPart2Time(t *testing.T) {
 	baseTime := 0
 	g := setup("./fake.txt", t)
 	g.SetupWork(workers, baseTime)
-	g.DoWork()
-	out := g.WorkTime()
+	out := g.DoWork()
 
 	expect := 15
 	if expect != out {

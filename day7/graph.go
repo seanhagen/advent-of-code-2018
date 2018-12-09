@@ -23,30 +23,11 @@ type Graph struct {
 	unstarted  []*Node
 	inProgress []*Node
 	done       []*Node
-	work       map[int][]int
 
 	workers map[int]*worker
 
 	baseWorkTime int
 	numWorkers   int
-	finishTime   int
-}
-
-// Last ...
-func (g *Graph) Last() *Node {
-	for _, n := range g.nodes {
-		r := true
-		for m, _ := range g.edges {
-			if n == m {
-				r = false
-			}
-		}
-		if r {
-			return n
-		}
-	}
-
-	return nil
 }
 
 // Setup ...
@@ -191,97 +172,55 @@ func (g *Graph) SetupWork(workers, base int) {
 }
 
 // DoWork ...
-func (g *Graph) DoWork() {
+func (g *Graph) DoWork() int {
 	i := 0
 
-	for ; len(g.done) != len(g.nodes); i++ {
+	for ; g.workLeft(); i++ {
 		for _, w := range g.workers {
-			done := w.work(i)
-			if done {
-
-				g.done = append(g.done, w.node)
-				children := g.Children(w.node)
-
-				for _, c := range children {
-					done := false
-					unstarted := false
-					fmt.Printf("need to check if child %v is done or unstarted - ", c.Name)
-					fmt.Printf("\n\t done: ")
-					for _, d := range g.done {
-						fmt.Printf("%v ", d.Name)
-						if c.Name == d.Name {
-							done = true
-						}
-					}
-
-					fmt.Printf("\n\t unstarted: ")
-					for _, u := range g.unstarted {
-						fmt.Printf("%v ", u.Name)
-						if c.Name == u.Name {
-							unstarted = true
-						}
-					}
-					fmt.Printf("\n")
-
-					if !done && !unstarted {
-						g.unstarted = append(g.unstarted, c)
-					}
-				}
-			}
-
-			fmt.Printf("s: %v, worker: %v, needs work: %v,\t unstarted: %v\n", i, w.id, w.needsWork(), len(g.unstarted))
 			if w.needsWork() && len(g.unstarted) > 0 {
-				t := g.unstarted[0]
-				if t.MeetsRequirements(g.done) {
-					fmt.Printf("can add node: %v\n", t.Name)
-					w.setWorker(t, i, g.baseWorkTime)
-					g.inProgress = append(g.inProgress, t)
+				n := g.unstarted[0]
+				if n.MeetsRequirements(g.done) {
+					fmt.Printf("worker %v needs work, giving: %v\n", w.id, n)
 					g.unstarted = g.unstarted[1:]
+					w.setWorker(n, i, g.baseWorkTime)
 				}
 			}
-			fmt.Printf("end checking worker %v\n\n", w.id)
-		}
 
-		fmt.Printf("end of second: %v\n\n", i)
+			w.work(i)
+
+			if w.node == nil {
+				children := g.Children(w.prev)
+				g.done = append(g.done, w.prev)
+				g.unstarted = append(g.unstarted, children...)
+			}
+		}
 
 		if i > 20 {
 			break
 		}
 	}
 
-	fmt.Printf("sec\t")
-	for i := range g.workers {
-		fmt.Printf("%v\t", i)
-	}
-	fmt.Printf("\n")
-
+	fmt.Printf("sec    worker 1      worker 2\n")
 	for j := 0; j < i; j++ {
-		fmt.Printf("%v\t", j)
-		for k := 1; k <= len(g.workers); k++ {
-			w := g.workers[k]
-			fmt.Printf("%v\t", w.log[j])
+		fmt.Printf("%5v", j)
+		for _, w := range g.workers {
+			fmt.Printf("%5v", w.log[j])
 		}
 		fmt.Printf("\n")
 	}
 	fmt.Printf("\n\n")
 
-	g.finishTime = i
-	fmt.Printf("work done\n")
+	return i
 }
 
 // WorkDone ...
 func (g *Graph) workLeft() bool {
-	return false //len(g.unstarted) > 0 || len(g.inProgress) > 0
+	return len(g.done) != len(g.nodes)
 }
 
 // PrintWork ...
 func (g *Graph) PrintWork() string {
 	return ""
-}
-
-// WorkTime ...
-func (g *Graph) WorkTime() int {
-	return g.finishTime
 }
 
 // AddNode ...

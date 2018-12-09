@@ -83,9 +83,7 @@ func main() {
 
 	g.SetupWork(5, 60)
 
-	g.DoWork()
-
-	o := g.WorkTime()
+	o := g.DoWork()
 
 	fmt.Printf("time: %v\n", o)
 }
