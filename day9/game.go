@@ -12,34 +12,25 @@ type player struct {
 
 // RunGame ...
 func RunGame(numPlayer, lastMarble int) int {
-	players := []player{}
-	for i := 0; i < numPlayer; i++ {
-		p := player{marbles: []int{}}
-		players = append(players, p)
-	}
-
-	curPlayer := 2
+	players := make([]int, numPlayer)
 
 	l := list.New()
 	e := l.PushFront(0)
-	e = l.InsertAfter(1, e)
 
-	for i := 2; i < lastMarble; i++ {
+	for i := 1; i < lastMarble; i++ {
 		if i%23 == 0 {
-			p := players[curPlayer-1]
-			p.marbles = append(p.marbles, i)
-
-			e := backSeven(l, e)
-			p.marbles = append(p.marbles, e.Value.(int))
-
-			o := e.Next()
-			if o == nil {
-				o = l.Front()
+			rm := e
+			for j := 0; j < 7; j++ {
+				rm = rm.Prev()
+				if rm == nil {
+					rm = l.Back()
+				}
 			}
-			l.Remove(e)
-			e = o
 
-			players[curPlayer-1] = p
+			curPlayer := i % numPlayer
+			players[curPlayer] += i + rm.Value.(int)
+			e = rm.Next()
+			l.Remove(rm)
 		} else {
 			n := e.Next()
 			if n == nil {
@@ -48,44 +39,14 @@ func RunGame(numPlayer, lastMarble int) int {
 
 			e = l.InsertAfter(i, n)
 		}
-
-		curPlayer++
-		if curPlayer > numPlayer {
-			curPlayer = 1
-		}
 	}
 
-	scores := map[int]int{}
 	highest := 0
-
-	for id, p := range players {
-		s := sum(p.marbles)
-		if s > highest {
-			highest = s
+	for _, p := range players {
+		if p > highest {
+			highest = p
 		}
-		scores[id] = s
 	}
 
 	return highest
-}
-
-func backSeven(l *list.List, e *list.Element) *list.Element {
-	for i := 0; i < 7; i++ {
-		e = e.Prev()
-		if e == nil {
-			e = l.Back()
-		}
-	}
-	return e
-}
-
-func sum(in []int) int {
-	s := 0
-	if len(in) == 0 {
-		return s
-	}
-	for _, v := range in {
-		s += v
-	}
-	return s
 }
