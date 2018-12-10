@@ -20,9 +20,9 @@ type Graph struct {
 	nodes map[string]*Node
 	edges map[*Node][]*Node
 
-	unstarted  []*Node
-	inProgress []*Node
-	done       []*Node
+	done      []*Node
+	needsWork []*Node
+	locked    []*Node
 
 	workers map[int]*worker
 
@@ -61,7 +61,7 @@ func (g Graph) Children(n *Node) []*Node {
 	if !ok {
 		return []*Node{}
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+	out = sortnodes(out)
 	return out
 }
 
@@ -99,7 +99,7 @@ func (g Graph) FirstNodes() []*Node {
 			first = append(first, node)
 		}
 	}
-	sort.Slice(first, func(i, j int) bool { return first[i].Name < first[j].Name })
+	first = sortnodes(first)
 	return first
 }
 
@@ -111,7 +111,7 @@ func (g Graph) Print() string {
 	toAdd := []*Node{}
 	toAdd = append(toAdd, f...)
 
-	sort.Slice(toAdd, func(i, j int) bool { return toAdd[i].Name < toAdd[j].Name })
+	toAdd = sortnodes(toAdd)
 
 	for i := 0; i < len(toAdd); i++ {
 		n := toAdd[i]
@@ -139,7 +139,7 @@ func (g Graph) Print() string {
 			toAdd = append(toAdd, children...)
 
 			// sort toAdd by node name alphabetically
-			sort.Slice(toAdd, func(i, j int) bool { return toAdd[i].Name < toAdd[j].Name })
+			toAdd = sortnodes(toAdd)
 
 			// start over at the beginning
 			i = -1
@@ -156,71 +156,6 @@ func (g Graph) Print() string {
 	}
 
 	return out
-}
-
-func (g *Graph) SetupWork(workers, base int) {
-	g.numWorkers = workers
-	g.baseWorkTime = base
-	start := g.FirstNodes()
-	g.unstarted = append(g.unstarted, start...)
-
-	g.workers = map[int]*worker{}
-	for i := 1; i <= g.numWorkers; i++ {
-		g.workers[i] = &worker{id: i}
-		g.workers[i].setup(i)
-	}
-}
-
-// DoWork ...
-func (g *Graph) DoWork() int {
-	i := 0
-
-	for ; g.workLeft(); i++ {
-		for _, w := range g.workers {
-			if w.needsWork() && len(g.unstarted) > 0 {
-				n := g.unstarted[0]
-				if n.MeetsRequirements(g.done) {
-					fmt.Printf("worker %v needs work, giving: %v\n", w.id, n)
-					g.unstarted = g.unstarted[1:]
-					w.setWorker(n, i, g.baseWorkTime)
-				}
-			}
-
-			w.work(i)
-
-			if w.node == nil {
-				children := g.Children(w.prev)
-				g.done = append(g.done, w.prev)
-				g.unstarted = append(g.unstarted, children...)
-			}
-		}
-
-		if i > 20 {
-			break
-		}
-	}
-
-	fmt.Printf("sec    worker 1      worker 2\n")
-	for j := 0; j < i; j++ {
-		fmt.Printf("%5v", j)
-		for _, w := range g.workers {
-			fmt.Printf("%5v", w.log[j])
-		}
-		fmt.Printf("\n")
-	}
-	fmt.Printf("\n\n")
-
-	return i
-}
-
-// WorkDone ...
-func (g *Graph) workLeft() bool {
-	return len(g.done) != len(g.nodes)
-}
-
-// PrintWork ...
-func (g *Graph) PrintWork() string {
-	return ""
 }
 
 // AddNode ...
@@ -252,4 +187,9 @@ func (g Graph) FindNode(f string) *Node {
 		return n
 	}
 	return nil
+}
+
+func sortnodes(in []*Node) []*Node {
+	sort.Slice(in, func(i, j int) bool { return in[i].Name < in[j].Name })
+	return in
 }

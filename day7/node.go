@@ -1,9 +1,5 @@
 package day7
 
-import (
-	"fmt"
-)
-
 // Node point in graph
 type Node struct {
 	Name     string
@@ -44,7 +40,6 @@ func (n *Node) Start(s, base int) {
 
 // Done ...
 func (n *Node) Done(s int) bool {
-	fmt.Printf("second: %v, checking node %v end: %v\n", s, n.Name, n.end)
 	if n == nil {
 		return true
 	}
