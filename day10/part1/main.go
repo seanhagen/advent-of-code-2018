@@ -170,6 +170,10 @@ What message will eventually appear in the sky?
 func main() {
 	b := &day10.Board{}
 	b.Setup("../input.txt")
-	o := b.Message()
-	fmt.Printf("got message:\n%v\n\n", o)
+	o := b.FindSmallestBoundingBox()
+	msg := b.Print()
+
+	fmt.Printf("smallest bounding box area: %v\n\nmessage:\n\n%v\n\n", o, msg)
+
+	// JLPZFJRH -- found on step 10595
 }

@@ -9,6 +9,10 @@ import (
 )
 
 /*
+width: 10
+height: 8
+area: 80
+
 #...#..###
 #...#...#.
 #...#...#.
@@ -112,26 +116,6 @@ func (b Board) Print() string {
 // Message ...
 func (b Board) Message() string {
 	for i := 0; ; i++ {
-		switch i {
-		case 5:
-			fmt.Printf("A\n")
-		case 6:
-			fmt.Printf("AA\n")
-		case 7:
-			fmt.Printf("AAA\n")
-		case 10:
-			fmt.Printf("B\n")
-		case 50:
-			fmt.Printf("C\n")
-		case 100:
-			fmt.Printf("D\n")
-		case 500:
-			fmt.Printf("E\n")
-		case 1000:
-			fmt.Printf("F\n")
-		default:
-			fmt.Printf("%v\n", i)
-		}
 
 		for _, p := range b.points {
 			foundH := b.TestForLetter(p, H)
@@ -181,6 +165,66 @@ func (b Board) TestForLetter(p *point, test [][]int) bool {
 	return count == len(should)
 }
 
+// FindSmallestBoundingBox ...
+func (b *Board) FindSmallestBoundingBox() int {
+	area := 1000 * 1000 * 1000 * 1000 * 1000 * 1000
+	prevArea := area
+
+	i := 0
+	for {
+		fmt.Printf("finding smallest, step %v\n", i)
+		minx := 0
+		miny := 0
+		maxx := 0
+		maxy := 0
+
+		for _, p1 := range b.points {
+			if p1.x > maxx {
+				maxx = p1.x
+			}
+			if p1.x < minx {
+				minx = p1.x
+			}
+
+			if p1.y > maxy {
+				maxy = p1.y
+			}
+			if p1.y < miny {
+				miny = p1.y
+			}
+		}
+
+		xdist := dist(minx, maxx)
+		ydist := dist(miny, maxy)
+
+		area = xdist * ydist
+
+		if area < prevArea {
+			prevArea = area
+		} else {
+			fmt.Printf("found on step %v\n", i-1)
+			area = prevArea
+			b.back()
+			break
+		}
+
+		b.minX = minx
+		b.minY = miny
+		b.maxX = maxx
+		b.maxY = maxy
+
+		b.step()
+		i++
+	}
+
+	return area
+}
+
+func dist(x1, x2 int) int {
+	return x2 - x1
+	//return int(math.Abs(float64(x1 - x2)))
+}
+
 // DoSteps ...
 func (b *Board) DoSteps(i int) {
 	for j := 1; j < i+1; j++ {
@@ -192,6 +236,13 @@ func (b *Board) DoSteps(i int) {
 func (b *Board) step() {
 	for i := 0; i < len(b.points); i++ {
 		b.points[i].step()
+	}
+}
+
+// back ...
+func (b *Board) back() {
+	for i := 0; i < len(b.points); i++ {
+		b.points[i].back()
 	}
 }
 

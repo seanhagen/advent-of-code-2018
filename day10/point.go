@@ -55,3 +55,9 @@ func (p *point) step() {
 	p.x += p.xvel
 	p.y += p.yvel
 }
+
+// back ...
+func (p *point) back() {
+	p.x -= p.xvel
+	p.y -= p.yvel
+}

@@ -118,6 +118,39 @@ func TestHasI(t *testing.T) {
 	}
 }
 
+func TestFindSmallestBoudingBox(t *testing.T) {
+	b := &Board{}
+	b.Setup("./test.txt")
+
+	area := b.FindSmallestBoundingBox()
+	expect := 63
+	if area != expect {
+		t.Errorf("wrong area, expected %v got %v", expect, area)
+	}
+}
+
+func TestSmallestMessage(t *testing.T) {
+	b := &Board{}
+	b.Setup("./test.txt")
+
+	_ = b.FindSmallestBoundingBox()
+
+	expect := `#...#..###
+#...#...#.
+#...#...#.
+#####...#.
+#...#...#.
+#...#...#.
+#...#...#.
+#...#..###
+`
+
+	out := b.Print()
+	if expect != out {
+		t.Errorf("wrong message. \nexpected:\n%v\n\ngot: \n%v\n", expect, out)
+	}
+}
+
 func TestFindMessage(t *testing.T) {
 	expect := `......................
 ......................
