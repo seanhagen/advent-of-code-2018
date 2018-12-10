@@ -25,7 +25,6 @@ func (w *worker) setup(i int) {
 func (w *worker) work(sec int, g *Graph) {
 	if w.node != nil && w.node.Done(sec) {
 		g.done = append(g.done, w.node)
-
 		children := g.Children(w.node)
 		for _, c := range children {
 			if c.MeetsRequirements(g.done) {
@@ -66,7 +65,6 @@ func (w *worker) work(sec int, g *Graph) {
 		w.log = append(w.log, ".")
 	}
 
-	fmt.Printf("\tworker: %v, second: %v, len log: %v, log: %#v\n", w.id, sec, len(w.log), w.log)
 }
 
 // setWorker ...
