@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// SetupWork ...
 func (g *Graph) SetupWork(workers, base int) {
 	g.numWorkers = workers
 	g.baseWorkTime = base
@@ -21,11 +22,7 @@ func (g *Graph) SetupWork(workers, base int) {
 func (g *Graph) DoWork() int {
 	i := 0
 
-	fmt.Printf("need to complete work on nodes: ")
-	for _, n := range g.nodes {
-		fmt.Printf("%v ", n.Name)
-	}
-	fmt.Printf("\n")
+	fmt.Printf("base working time: %v\n", g.baseWorkTime)
 
 	for ; g.workLeft(); i++ {
 		for _, l := range g.locked {
@@ -46,24 +43,24 @@ func (g *Graph) DoWork() int {
 			w.work(i, g)
 		}
 
-		// if i > 26 {
-		// 	break
-		// }
+		if i >= 200 {
+			break
+		}
 
 		if len(g.done) == len(g.nodes) {
 			break
 		}
 	}
 
-	fmt.Printf("Second    Worker 1   Worker 2\n")
-	for j := 0; j < i; j++ {
-		fmt.Printf("%4v", j)
-		for _, w := range g.workers {
-			fmt.Printf("%10v", w.log[j])
-		}
-		fmt.Printf("\n")
-	}
-	fmt.Printf("\n\n")
+	// fmt.Printf("Second    Worker 1   Worker 2\n")
+	// for j := 0; j < i; j++ {
+	// 	fmt.Printf("%4v", j)
+	// 	for _, w := range g.workers {
+	// 		fmt.Printf("%10v", w.log[j])
+	// 	}
+	// 	fmt.Printf("\n")
+	// }
+	// fmt.Printf("\n\n")
 
 	return i - 1
 }

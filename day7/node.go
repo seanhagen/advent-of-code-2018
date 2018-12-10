@@ -1,5 +1,7 @@
 package day7
 
+import "fmt"
+
 // Node point in graph
 type Node struct {
 	Name     string
@@ -32,10 +34,10 @@ func (n *Node) Start(s, base int) {
 	}
 
 	n.start = s
-	n.end = s + n.time
+	n.end = s + n.time + base
 	n.working = true
 
-	// fmt.Printf("node %v start %v end %v\n", n.Name, n.start, n.end)
+	fmt.Printf("node %v start %v end %v\n", n.Name, n.start, n.end)
 }
 
 // Done ...

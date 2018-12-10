@@ -29,6 +29,19 @@ func (w *worker) work(sec int, g *Graph) {
 		for _, c := range children {
 			if c.MeetsRequirements(g.done) {
 				in := false
+				for _, x := range g.locked {
+					for _, y := range g.needsWork {
+						if x == y {
+							in = true
+							break
+							fmt.Printf("%v is locked and needsWork!\n", x.Name)
+						}
+					}
+					if in {
+						break
+					}
+				}
+
 				for _, x := range g.needsWork {
 					if x == c {
 						in = true
@@ -71,8 +84,5 @@ func (w *worker) work(sec int, g *Graph) {
 func (w *worker) setWorker(n *Node, s, base int) {
 	n.Start(s, base)
 	w.node = n
-	fmt.Printf("\ts:%v, setting worker %v node to '%v', start: %v, end: %v, second: %v, log: %#v\n", s, w.id, n.Name, s, n.end, s, w.log)
-
 	w.workDone = n.end
-	// w.log[w.sec] = n.Name
 }
